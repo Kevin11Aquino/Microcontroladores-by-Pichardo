@@ -1,0 +1,31 @@
+//Práctica #1 - Microcontroladores C1-2024
+//Kevin Aquino Mariñez
+//2019-7836
+
+
+/*
+Este codigo es el encargado de hacer que se las luces prendan y apaguen secuencialmente
+-Prende led rojo
+-Prende led verde
+-Prende led amarillo 
+-Y luego apagan en ese mismo orden
+*/
+ 
+while (1)
+  {
+	  HAL_GPIO_WritePin(ledRed_GPIO_Port, ledRed_Pin, 1);
+	  HAL_Delay(500);
+	  HAL_GPIO_WritePin(ledVerde_GPIO_Port, ledVerde_Pin, 1);
+	  HAL_Delay(500);
+	  HAL_GPIO_WritePin(ledYellow_GPIO_Port, ledYellow_Pin, 1);
+	  HAL_Delay(500);
+	  HAL_GPIO_WritePin(ledRed_GPIO_Port, ledRed_Pin, 0);
+	  HAL_Delay(500);
+	  HAL_GPIO_WritePin(ledVerde_GPIO_Port, ledVerde_Pin, 0);
+	  HAL_Delay(500);
+	  HAL_GPIO_WritePin(ledYellow_GPIO_Port, ledYellow_Pin, 0);
+	  HAL_Delay(500);
+    /* USER CODE END WHILE */
+
+    /* USER CODE BEGIN 3 */
+  }
