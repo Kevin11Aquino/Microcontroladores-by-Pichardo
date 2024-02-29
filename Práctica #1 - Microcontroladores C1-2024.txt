@@ -4,11 +4,11 @@
 
 
 /*
-Este codigo es el encargado de hacer que se las luces prendan y apaguen secuencialmente
+Este codigo es el encargado de hacer que las luces prendan y apaguen secuencialmente
 -Prende led rojo
 -Prende led verde
 -Prende led amarillo 
--Y luego apagan en ese mismo orden
+-Y luego apagan en ese mismo orden de arriba hacia abajo
 */
  
 while (1)
