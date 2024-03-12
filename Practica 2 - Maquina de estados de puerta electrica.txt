@@ -23,16 +23,18 @@ Hecho por: Kevin Aquino Mariñez
 /*Defino los puertos*/
 #define PT_A GPIOA
 #define PT_B GPIOB
-#define PT_E GPIOE
-#define PT_F GPIOF
+#define PT_C GPIOC
+/*#define PT_E GPIOE
+#define PT_F GPIOF*/
 
 /*Defino los pines*/
-#define PIN_Ba_A GPIO_PIN_0 
-#define PIN_Bc_B GPIO_PIN_2 
-#define PIN_Sa_F GPIO_PIN_2
-#define PIN_Sc_E GPIO_PIN_9
-#define PIN_Ma_F GPIO_PIN_1
-#define PIN_Mc_F GPIO_PIN_0
+#define PIN_Ba GPIO_PIN_0 
+#define PIN_Bc GPIO_PIN_1 
+#define PIN_Sa GPIO_PIN_4
+#define PIN_Sc GPIO_PIN_0
+#define PIN_Ma GPIO_PIN_1
+#define PIN_Mc GPIO_PIN_0
+#define PIN_Led GPIO_PIN_3
 
 int Func_ESTADO_ERROR(void);
 int Func_ESTADO_ABIERTO(void);
@@ -231,27 +233,27 @@ void intGeneral100ms(void)
         cont_int = 0;
     }
  
-    if(HAL_GPIO_Read(PT_B,PIN_Bc_B))//leg
+    if(HAL_GPIO_Read(PT_A,PIN_Bc))//leg
     {
         inout.Bc = TRUE;
     }else{
         inout.Bc = FALSE;
     }
  
-    if(HAL_GPIO_Read(PT_A,PIN_Ba_A))//leg
+    if(HAL_GPIO_Read(PT_A,PIN_Ba))//leg
     {
         inout.Ba = TRUE;
     }else{
         inout.Ba = FALSE;
     }
  
-    if(HAL_GPIO_Read(PT_E,PIN_Sc_E))//leg
+    if(HAL_GPIO_Read(PT_B,PIN_Sc))//leg
     {
          inout.Sc = TRUE;
     }else{
          inout.Sc = FALSE;
     }
-     if(HAL_GPIO_Read(PT_F,PIN_Sa_F))//leg
+     if(HAL_GPIO_Read(PT_A,PIN_Sa))//leg
     {
          inout.Sc = TRUE;
     }else{
@@ -260,16 +262,23 @@ void intGeneral100ms(void)
  
     if(inout.Ma == TRUE)//leg
     {
-        HAL_GPIO_Write(PT_F,PIN_Ma_F,1);
+        HAL_GPIO_Write(PT_C,PIN_Ma,1);
     }else
     {
-        HAL_GPIO_Write(PT_F,PIN_Ma_F,0);
+        HAL_GPIO_Write(PT_C,PIN_Ma,0);
     }
     if(inout.Mc == TRUE)//leg
     {
-        HAL_GPIO_Write(PT_F,PIN_Mc_F,1);
+        HAL_GPIO_Write(PT_C,PIN_Mc,1);
     }else
     {
-        HAL_GPIO_Write(PT_F,PIN_Mc_F,0);
+        HAL_GPIO_Write(PT_C,PIN_Mc,0);
+    }
+    if(inout.Led == TRUE)//leg
+    {
+        HAL_GPIO_Write(PT_A,PIN_Led,1);
+    }else
+    {
+        HAL_GPIO_Write(PT_A,PIN_Led,0);
     }
 }
