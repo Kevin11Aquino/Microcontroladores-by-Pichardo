@@ -1,10 +1,12 @@
 /*
 Practica 2 - Maquina de estados de puerta electrica
 Profesor: Carlos Antonio Pichardo Viuque
+Hecho por: Kevin Aquino Mariñez
 */
 
 #include <stdio.h>
 #include <stdlib.h>
+
 #define ESTADO_ERROR        0
 #define ESTADO_ABIERTO      1
 #define ESTADO_CERRADO      2
@@ -17,6 +19,21 @@ Profesor: Carlos Antonio Pichardo Viuque
 #define inTrue 0
 #define inFalse 1
 #define TIME_Ca 60
+
+/*Defino los puertos*/
+#define PT_A GPIOA
+#define PT_B GPIOB
+#define PT_E GPIOE
+#define PT_F GPIOF
+
+/*Defino los pines*/
+#define PIN_Ba_A GPIO_PIN_0 
+#define PIN_Bc_B GPIO_PIN_2 
+#define PIN_Sa_F GPIO_PIN_2
+#define PIN_Sc_E GPIO_PIN_9
+#define PIN_Ma_F GPIO_PIN_1
+#define PIN_Mc_F GPIO_PIN_0
+
 int Func_ESTADO_ERROR(void);
 int Func_ESTADO_ABIERTO(void);
 int Func_ESTADO_CERRADO(void);
@@ -95,22 +112,18 @@ int Func_ESTADO_ABIERTO(void)
  
     for(;;)
     {
-        if(CntTimeCa > TIME_Ca)
+        if((CntTimeCa > TIME_Ca) || (inout.Bc == TRUE))
         {
             return ESTADO_CERRANDO;
         }
  
-        if(inout.Bc == TRUE)
-        {
-            return ESTADO_CERRANDO;
-        }
     }
 }
 int Func_ESTADO_CERRADO(void)
 {
     ESTADO_ANTERIOR = ESTADO_ACTUAL;
     ESTADO_ACTUAL = ESTADO_CERRADO;
-    inout.Mc = FALSE;
+    inout.Mc = TRUE;
     inout.Ma = FALSE;
  
     for(;;)
@@ -124,7 +137,24 @@ int Func_ESTADO_CERRADO(void)
 }
 int Func_ESTADO_ABRIENDO(void)
 {
+    ESTADO_ANTERIOR = ESTADO_ACTUAL;
+    ESTADO_ACTUAL = ESTADO_ABRIENDO;
+    inout.Mc = FALSE;
+    inout.Ma = TRUE;
  
+    for(;;)
+    {
+        if(inout.Sa == TRUE)
+        {
+            return ESTADO_ABIERTO;
+        }
+        /*
+         if(inout.Bc== TRUE)/*AQUI LA PUERTA NO TIENE QUE ABRIR COMPLETAMENTE PARA YO PODER CERRARLA*
+         {
+            return ESTADO_CERRANDO;
+        }
+        */
+    }
 }
 int Func_ESTADO_CERRANDO(void)
 {
@@ -139,12 +169,30 @@ int Func_ESTADO_CERRANDO(void)
         {
             return ESTADO_CERRADO;
         }
+       /* if(inout.Ba == TRUE)/*AQUI LA PUERTA NO TIENE QUE CERRAR COMPLETAMENTE PARA YO PODER ABRIRLA*
+        {
+            return ESTADO_ABRIENDO;
+        }*/
     }
 }
 int Func_ESTADO_INTERMEDIO(void)
 {
- 
+    ESTADO_ANTERIOR = ESTADO_ACTUAL;
+    ESTADO_ACTUAL = ESTADO_INTERMEDIO;
+    for (;;)
+    {
+        if(inout.Mc == inFalse)
+    {
+        return ESTADO_CERRANDO;
+    }
+        if(inout.Ma == inFalse)
+    {
+        return ESTADO_ABRIENDO;
+    }
 }
+    }
+    
+    
 int Func_ESTADO_INIT(void)
 {
     ESTADO_ANTERIOR = ESTADO_ACTUAL;
@@ -152,25 +200,22 @@ int Func_ESTADO_INIT(void)
  
     inout.Ma = FALSE;
     inout.Mc = FALSE;
- 
-    if((inout.Sa == inTrue) && (intout.Sc == inTrue))
+
+    if((inout.Sa == inFalse) && (inout.Sc == inFalse))
     {
         return ESTADO_ERROR;
     }
- 
-    if(inout.Sa == inTrue)
+    if((inout.Sa == inTrue) && (inout.Sc == inTrue))
+    {
+        return ESTADO_INTERMEDIO;
+    }
+     if(inout.Sa == inFalse)
     {
         return ESTADO_ABIERTO;
     }
- 
-    if()
+    if(inout.Sc == inFalse)
     {
- 
-    }
- 
-    if()
-    {
- 
+        return ESTADO_CERRADO;
     }
 }
  
@@ -186,28 +231,45 @@ void intGeneral100ms(void)
         cont_int = 0;
     }
  
-    if(HAL_GPIO_Read(PUERTO,PIN_Bc))//leg
+    if(HAL_GPIO_Read(PT_B,PIN_Bc_B))//leg
     {
         inout.Bc = TRUE;
     }else{
         inout.Bc = FALSE;
     }
  
-    if(HAL_GPIO_Read(PUERTO,PIN_Ba))//leg
+    if(HAL_GPIO_Read(PT_A,PIN_Ba_A))//leg
     {
- 
+        inout.Ba = TRUE;
+    }else{
+        inout.Ba = FALSE;
     }
  
-    if(HAL_GPIO_Read(PUERTO,PIN_Sc))//leg
+    if(HAL_GPIO_Read(PT_E,PIN_Sc_E))//leg
     {
- 
+         inout.Sc = TRUE;
+    }else{
+         inout.Sc = FALSE;
+    }
+     if(HAL_GPIO_Read(PT_F,PIN_Sa_F))//leg
+    {
+         inout.Sc = TRUE;
+    }else{
+         inout.Sc = FALSE;
     }
  
     if(inout.Ma == TRUE)//leg
     {
-        HAL_GPIO_Write(PUERTO,PIN_Ma,1);
+        HAL_GPIO_Write(PT_F,PIN_Ma_F,1);
     }else
     {
-        HAL_GPIO_Write(PUERTO,PIN_Ma,0);
+        HAL_GPIO_Write(PT_F,PIN_Ma_F,0);
+    }
+    if(inout.Mc == TRUE)//leg
+    {
+        HAL_GPIO_Write(PT_F,PIN_Mc_F,1);
+    }else
+    {
+        HAL_GPIO_Write(PT_F,PIN_Mc_F,0);
     }
 }
