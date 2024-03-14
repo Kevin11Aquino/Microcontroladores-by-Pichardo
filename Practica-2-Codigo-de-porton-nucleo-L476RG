@@ -441,12 +441,21 @@ int Func_ESTADO_ABRIENDO(void)
     inout.Mc = FALSE;
     inout.Ma = TRUE;
 
+
     for(;;)
     {
-        if(inout.Sa == TRUE)
-        {
-            return ESTADO_ABIERTO;
-        }
+    	for(;;){
+    	    			HAL_GPIO_WritePin(PT_B, Led_Ext_Pin, 1);
+    	            	HAL_Delay(300);
+    	            	HAL_GPIO_WritePin(PT_B, Led_Ext_Pin, 0);
+    	            	HAL_Delay(300);
+
+    	            	 if(inout.Sa == TRUE)
+    	            	        {
+    	            	            return ESTADO_ABIERTO;
+    	            	        }
+    	    }
+
     }
 }
 int Func_ESTADO_CERRANDO(void)
@@ -455,13 +464,18 @@ int Func_ESTADO_CERRANDO(void)
     ESTADO_ACTUAL = ESTADO_CERRANDO;
     inout.Mc = TRUE;
     inout.Ma = FALSE;
+for(;;){
+	for(;;){
+	    	    			HAL_GPIO_WritePin(PT_B, Led_Ext_Pin, 1);
+	    	            	HAL_Delay(300);
+	    	            	HAL_GPIO_WritePin(PT_B, Led_Ext_Pin, 0);
+	    	            	HAL_Delay(300);
 
-    for(;;)
-    {
-        if(inout.Sc == TRUE)
-        {
-            return ESTADO_CERRADO;
-        }
+	    	            	 if(inout.Sc == TRUE)
+	    	            	        {
+	    	            	            return ESTADO_ABIERTO;
+	    	            	        }
+	    	    }
     }
 }
 int Func_ESTADO_INTERMEDIO(void)
