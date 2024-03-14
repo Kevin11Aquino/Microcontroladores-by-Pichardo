@@ -1,4 +1,4 @@
-/* USER CODE BEGIN Header */
+ /* USER CODE BEGIN Header */
 /**
   ******************************************************************************
   * @file           : main.c
@@ -344,10 +344,13 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(Led_GPIO_Port, Led_Pin, GPIO_PIN_RESET);
 
+  /*Configure GPIO pin Output Level */
+  HAL_GPIO_WritePin(Led_Ext_GPIO_Port, Led_Ext_Pin, GPIO_PIN_RESET);
+
   /*Configure GPIO pin : B1_Pin */
   GPIO_InitStruct.Pin = B1_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_FALLING;
-  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(B1_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : Mc_Pin Ma_Pin */
@@ -360,7 +363,7 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pins : Ba_Pin Bc_Pin Sa_Pin */
   GPIO_InitStruct.Pin = Ba_Pin|Bc_Pin|Sa_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
   /*Configure GPIO pin : Led_Pin */
@@ -373,8 +376,15 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pin : Sc_Pin */
   GPIO_InitStruct.Pin = Sc_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
   HAL_GPIO_Init(Sc_GPIO_Port, &GPIO_InitStruct);
+
+  /*Configure GPIO pin : Led_Ext_Pin */
+  GPIO_InitStruct.Pin = Led_Ext_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(Led_Ext_GPIO_Port, &GPIO_InitStruct);
 
   /* EXTI interrupt init*/
   HAL_NVIC_SetPriority(EXTI15_10_IRQn, 0, 0);
@@ -390,19 +400,19 @@ int Func_ESTADO_ERROR(void)
 {
     for(;;)
     {
-        inout.Led = inTrue;
+        inout.Led = TRUE;
     }
 }
 int Func_ESTADO_ABIERTO(void)
 {
     ESTADO_ANTERIOR = ESTADO_ACTUAL;
     ESTADO_ACTUAL = ESTADO_ABIERTO;
-    inout.Ma = inFalse;
-    inout.Mc = inFalse;
+    inout.Ma = FALSE;
+    inout.Mc = FALSE;
 
     for(;;)
     {
-        if(inout.Bc == inTrue)
+        if(inout.Bc == TRUE)
         {
             return ESTADO_CERRANDO;
         }
@@ -412,12 +422,12 @@ int Func_ESTADO_CERRADO(void)
 {
     ESTADO_ANTERIOR = ESTADO_ACTUAL;
     ESTADO_ACTUAL = ESTADO_CERRADO;
-    inout.Mc = inFalse;
-    inout.Ma = inFalse;
+    inout.Mc = FALSE;
+    inout.Ma = FALSE;
 
     for(;;)
     {
-        if(inout.Ba == inTrue)
+        if(inout.Ba == TRUE)
         {
             return ESTADO_ABRIENDO;
         }
@@ -428,12 +438,12 @@ int Func_ESTADO_ABRIENDO(void)
 {
     ESTADO_ANTERIOR = ESTADO_ACTUAL;
     ESTADO_ACTUAL = ESTADO_ABRIENDO;
-    inout.Mc = inFalse;
-    inout.Ma = inTrue;
+    inout.Mc = FALSE;
+    inout.Ma = TRUE;
 
     for(;;)
     {
-        if(inout.Sa == inTrue)
+        if(inout.Sa == TRUE)
         {
             return ESTADO_ABIERTO;
         }
@@ -443,12 +453,12 @@ int Func_ESTADO_CERRANDO(void)
 {
     ESTADO_ANTERIOR = ESTADO_ACTUAL;
     ESTADO_ACTUAL = ESTADO_CERRANDO;
-    inout.Mc = inTrue;
-    inout.Ma = inFalse;
+    inout.Mc = TRUE;
+    inout.Ma = FALSE;
 
     for(;;)
     {
-        if(inout.Sc == inTrue)
+        if(inout.Sc == TRUE)
         {
             return ESTADO_CERRADO;
         }
@@ -458,15 +468,15 @@ int Func_ESTADO_INTERMEDIO(void)
 {
     ESTADO_ANTERIOR = ESTADO_ACTUAL;
     ESTADO_ACTUAL = ESTADO_INTERMEDIO;
-    inout.Ma = inFalse;
-    inout.Mc = inFalse;
+    inout.Ma = FALSE;
+    inout.Mc = FALSE;
     for(;;)
     {
-        if(inout.Ba == inTrue)
+        if(inout.Ba == TRUE)
         {
             return ESTADO_ABRIENDO;
         }
-        if(inout.Bc == inTrue)
+        if(inout.Bc == TRUE)
         {
             return ESTADO_CERRANDO;
         }
@@ -476,26 +486,26 @@ int Func_ESTADO_INIT(void)
 {
     ESTADO_ANTERIOR = ESTADO_ACTUAL;
     ESTADO_ACTUAL = ESTADO_INIT;
-    inout.Ma = inFalse;
-    inout.Mc = inFalse;
+    inout.Ma = FALSE;
+    inout.Mc = FALSE;
     for(;;)
     {
-        if((inout.Sa == inTrue) && (inout.Sc == inTrue))
+        if((inout.Sa == TRUE) && (inout.Sc == TRUE))
         {
             return ESTADO_ERROR;
         }
 
-        if(inout.Sa == inTrue)
+        if(inout.Sa == TRUE)
         {
             return ESTADO_ABIERTO;
         }
 
-        if(inout.Sc == inTrue)
+        if(inout.Sc == TRUE)
         {
             return ESTADO_CERRADO;
         }
 
-        if((inout.Sa == inFalse) && (inout.Sc == inFalse))
+        if((inout.Sa == FALSE) && (inout.Sc == FALSE))
         {
             return ESTADO_INTERMEDIO;
         }
@@ -505,39 +515,39 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
     if(HAL_GPIO_ReadPin(PT_A,PIN_Bc))//leg
     {
-        inout.Bc = inTrue;
+        inout.Bc = TRUE;
     }else{
-        inout.Bc = inFalse;
+        inout.Bc = FALSE;
     }
 
     if(HAL_GPIO_ReadPin(PT_A,PIN_Ba))//leg
     {
-        inout.Ba = inTrue;
+        inout.Ba = TRUE;
     }else{
-        inout.Ba = inFalse;
+        inout.Ba = FALSE;
     }
 
     if(HAL_GPIO_ReadPin(PT_B,PIN_Sc))//leg
     {
-         inout.Sc = inTrue;
+         inout.Sc = TRUE;
     }else{
-         inout.Sc = inFalse;
+         inout.Sc = FALSE;
     }
      if(HAL_GPIO_ReadPin(PT_A,PIN_Sa))//leg
     {
-         inout.Sc = inTrue;
+         inout.Sa = TRUE;
     }else{
-         inout.Sc = inFalse;
+         inout.Sa = FALSE;
     }
 
-    if(inout.Ma == inTrue)//leg
+    if(inout.Ma == TRUE)//leg
     {
         HAL_GPIO_WritePin(PT_C,PIN_Ma,1);
     }else
     {
         HAL_GPIO_WritePin(PT_C,PIN_Ma,0);
     }
-    if(inout.Mc == inTrue)//leg
+    if(inout.Mc == TRUE)//leg
     {
         HAL_GPIO_WritePin(PT_C,PIN_Mc,1);
     }else
